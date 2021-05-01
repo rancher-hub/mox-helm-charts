@@ -1,9 +1,9 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "jira-software.fullname" . -}}
 {{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 {{- else -}}
-apiVersion: extensions/v1beta1
+apiVersion: extensions/v1
 {{- end }}
 kind: Ingress
 metadata:
@@ -31,10 +31,13 @@ spec:
       http:
         paths:
         {{- range .paths }}
-          - path: {{ . }}
-            backend:
-              serviceName: {{ $fullName }}
-              servicePort: 80
+          - backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: 80
+            path: {{ . }}
+            pathType: ImplementationSpecific
         {{- end }}
   {{- end }}
 {{- end }}
